@@ -39,12 +39,22 @@ func Btn() vecty.Markup {
 }
 
 //Toolbar applies toolbar class
-func Toolbar() vecty.Markup {
+func Toolbar(append ...bool) vecty.Markup {
+	if len(append) > 0 {
+		if ok := append[0]; ok {
+			return appendClass(toolbar)
+		}
+	}
 	return prop.Class(toolbar)
 }
 
 //ToolbarHeader applies toolbar-header class
-func ToolbarHeader() vecty.Markup {
+func ToolbarHeader(append ...bool) vecty.Markup {
+	if len(append) > 0 {
+		if ok := append[0]; ok {
+			return appendClass(toolbarHeader)
+		}
+	}
 	return prop.Class(toolbarHeader)
 }
 
@@ -66,4 +76,8 @@ func ToolbarBorderless() vecty.Markup {
 //ToolbarActions applies toolbar-actions class
 func ToolbarActions() vecty.Markup {
 	return prop.Class(toolbarActions)
+}
+
+func appendClass(class string) vecty.Markup {
+	return vecty.AppendProperty("className", class)
 }
