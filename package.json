@@ -1,0 +1,29 @@
+{
+  "name": "qlql",
+  "version": "0.1.0",
+  "description": "Provides a GUI to interact with ql database\"",
+  "main": "main.js",
+  "scripts": {
+    "test": "make test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gernest/qlql.git"
+  },
+  "keywords": [
+    "ql",
+    "database",
+    "go-ql",
+    "golang-ql",
+    "ql-electron"
+  ],
+  "author": "Geofrey Ernest",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/gernest/qlql/issues"
+  },
+  "homepage": "https://github.com/gernest/qlql#readme",
+  "devDependencies": {
+    "electron": "^1.4.15"
+  }
+}
