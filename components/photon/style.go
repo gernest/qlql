@@ -6,17 +6,87 @@ import (
 )
 
 const (
+	// base
 	window            = "window"
 	wContent          = "window-content"
-	btnGroup          = "btn-group"
-	btn               = "btn"
 	toolbar           = "toolbar"
 	toolbarHeader     = "toolbar-header"
 	toolbarFooter     = "toolbar-footer"
 	toolbarBorderless = "toolbar-borderless"
 	title             = "title"
 	toolbarActions    = "toolbar-actions"
+
+	// buttons
+	btnGroup = "btn-group"
+	btn      = "btn"
+
+	//forms
+	formCtrl       = "form-control"
+	formActions    = "form-actions"
+	checkBox       = "checkbox"
+	checkboxInline = "ccheckbox-inline"
+
+	///grid
+	paneGroup     = "pane-group"
+	pane          = "pane"
+	paneSM        = "pane-sm"
+	paneMini      = "pane-mini"
+	paneOneFourth = "pane-one-fourth"
+	paneOneThird  = "pane-one-third"
+
+	//image
+	imgCircle  = "img-circle"
+	imgRounded = "img-rounded"
+
+	//list
+	listGroup       = "list-group"
+	listGroupItem   = "list-group-item"
+	listGroupHeader = "list-group-header"
+	mediaObject     = "media-object"
+	mediaBody       = "media-body"
 )
+
+func ListGroup(append ...bool) vecty.Markup {
+	return addClass(listGroup, append...)
+}
+func ListGroupItem(append ...bool) vecty.Markup {
+	return addClass(listGroupItem, append...)
+}
+func ListGroupHeader(append ...bool) vecty.Markup {
+	return addClass(listGroupHeader, append...)
+}
+func ImgCircle(append ...bool) vecty.Markup {
+	return addClass(imgCircle, append...)
+}
+func MediaObject(append ...bool) vecty.Markup {
+	return addClass(mediaObject, append...)
+}
+func MediaBody(append ...bool) vecty.Markup {
+	return addClass(mediaBody, append...)
+}
+func ImgRounded(append ...bool) vecty.Markup {
+	return addClass(imgRounded, append...)
+}
+func Pane(append ...bool) vecty.Markup {
+	return addClass(pane, append...)
+}
+func PaneGroup(append ...bool) vecty.Markup {
+	return addClass(paneGroup, append...)
+}
+func PaneSM(append ...bool) vecty.Markup {
+	return addClass(paneSM, append...)
+}
+
+func PaneMimi(append ...bool) vecty.Markup {
+	return addClass(paneMini, append...)
+}
+func PaneOneFourth(append ...bool) vecty.Markup {
+	return addClass(paneOneFourth, append...)
+}
+
+func PaneOneThird(append ...bool) vecty.Markup {
+	return addClass(paneOneThird, append...)
+}
 
 //Window applies window class
 func Window(append ...bool) vecty.Markup {
