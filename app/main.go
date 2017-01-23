@@ -7,5 +7,7 @@ import (
 
 func main() {
 	vecty.SetTitle("my way")
-	vecty.RenderBody(&qlql.Index{})
+	i := &qlql.Index{}
+	i.AddTables("users", "languages", "email")
+	vecty.RenderBody(i)
 }
