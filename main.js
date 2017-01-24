@@ -3,7 +3,9 @@ var electron = require('electron');
 var app = electron.app;
 // Module to create native browser window.
 var BrowserWindow = electron.BrowserWindow;
+var spawn= require('child_process').spawn;
 
+var fs=require('fs');
 var path = require('path');
 var url = require('url');
 
@@ -29,9 +31,9 @@ function createWindow() {
         // Dereference the window object, usually you would store windows
         // in an array if your app supports multi windows, this is the time
         // when you should delete the corresponding element.
-        mainWindow = null
+        mainWindow = null;
     });
-};
+}
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -54,6 +56,28 @@ app.on('activate', function () {
         createWindow();
     }
 });
+fs.readdir(__dirname,function(error,files){
+    if (error){
+        throw error;
+    }
+    files.forEach(function(file){
+        base=path.basename(file);
+        re=/ql-api-server*/;
+        if(base.match(re)){
+            full=path.join(__dirname,file);
+            console.log(full);
+            ql=spawn(full,["server","--port",8000]);
+            ql.stdout.on('data',function(data){
+                console.log(data.toString())
+            });
+            ql.stderr.on('data',function(data){
+                console.log(data.toString())
+            });
+            ql.on('close',function(data){
+                console.log(data.toString())
+            });
+        }
+    });
+});
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
+
