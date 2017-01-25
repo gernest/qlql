@@ -47,70 +47,70 @@ const (
 )
 
 func ListGroup(append ...bool) vecty.Markup {
-	return addClass(listGroup, append...)
+	return AddClass(listGroup, append...)
 }
 func ListGroupItem(append ...bool) vecty.Markup {
-	return addClass(listGroupItem, append...)
+	return AddClass(listGroupItem, append...)
 }
 func ListGroupHeader(append ...bool) vecty.Markup {
-	return addClass(listGroupHeader, append...)
+	return AddClass(listGroupHeader, append...)
 }
 func ImgCircle(append ...bool) vecty.Markup {
-	return addClass(imgCircle, append...)
+	return AddClass(imgCircle, append...)
 }
 func MediaObject(append ...bool) vecty.Markup {
-	return addClass(mediaObject, append...)
+	return AddClass(mediaObject, append...)
 }
 func MediaBody(append ...bool) vecty.Markup {
-	return addClass(mediaBody, append...)
+	return AddClass(mediaBody, append...)
 }
 func ImgRounded(append ...bool) vecty.Markup {
-	return addClass(imgRounded, append...)
+	return AddClass(imgRounded, append...)
 }
 func Pane(append ...bool) vecty.Markup {
-	return addClass(pane, append...)
+	return AddClass(pane, append...)
 }
 func PaneGroup(append ...bool) vecty.Markup {
-	return addClass(paneGroup, append...)
+	return AddClass(paneGroup, append...)
 }
 func PaneSM(append ...bool) vecty.Markup {
-	return addClass(paneSM, append...)
+	return AddClass(paneSM, append...)
 }
 
-func PaneMimi(append ...bool) vecty.Markup {
-	return addClass(paneMini, append...)
+func PaneMiii(append ...bool) vecty.Markup {
+	return AddClass(paneMini, append...)
 }
 func PaneOneFourth(append ...bool) vecty.Markup {
-	return addClass(paneOneFourth, append...)
+	return AddClass(paneOneFourth, append...)
 }
 
 func PaneOneThird(append ...bool) vecty.Markup {
-	return addClass(paneOneThird, append...)
+	return AddClass(paneOneThird, append...)
 }
 
 //Window applies window class
 func Window(append ...bool) vecty.Markup {
-	return addClass(window, append...)
+	return AddClass(window, append...)
 }
 
 //WindowContent applies window-content class
 func WindowContent(append ...bool) vecty.Markup {
-	return addClass(wContent, append...)
+	return AddClass(wContent, append...)
 }
 
 //BtnGroup applies btn-group class
 func BtnGroup(append ...bool) vecty.Markup {
-	return addClass(btnGroup, append...)
+	return AddClass(btnGroup, append...)
 }
 
 //Btn applies btn class
 func Btn(append ...bool) vecty.Markup {
-	return addClass(btn, append...)
+	return AddClass(btn, append...)
 }
 
 //Toolbar applies toolbar class
 func Toolbar(append ...bool) vecty.Markup {
-	return addClass(toolbar, append...)
+	return AddClass(toolbar, append...)
 }
 
 //ToolbarHeader applies toolbar-header class
@@ -125,29 +125,29 @@ func ToolbarHeader(append ...bool) vecty.Markup {
 
 //ToolbarFooter applies toolbar-footer class
 func ToolbarFooter(append ...bool) vecty.Markup {
-	return addClass(toolbarFooter, append...)
+	return AddClass(toolbarFooter, append...)
 }
 
 //Title applies title class
 func Title(append ...bool) vecty.Markup {
-	return addClass(title, append...)
+	return AddClass(title, append...)
 }
 
 //ToolbarBorderless applies toolbar-borderless class
 func ToolbarBorderless(append ...bool) vecty.Markup {
-	return addClass(toolbarBorderless, append...)
+	return AddClass(toolbarBorderless, append...)
 }
 
 //ToolbarActions applies toolbar-actions class
 func ToolbarActions(append ...bool) vecty.Markup {
-	return addClass(toolbarActions, append...)
+	return AddClass(toolbarActions, append...)
 }
 
 func appendClass(class string) vecty.Markup {
 	return vecty.AppendProperty("className", class)
 }
 
-func addClass(class string, append ...bool) vecty.Markup {
+func AddClass(class string, append ...bool) vecty.Markup {
 	if len(append) > 0 {
 		if ok := append[0]; ok {
 			return appendClass(class)

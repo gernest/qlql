@@ -7,7 +7,5 @@ import (
 
 func main() {
 	vecty.SetTitle("my way")
-	i := &qlql.Index{}
-	i.AddTables("users", "languages", "email")
-	vecty.RenderBody(i)
+	vecty.RenderBody(qlql.NewIdex("http://localhost:8000"))
 }

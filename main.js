@@ -68,13 +68,13 @@ fs.readdir(__dirname,function(error,files){
             console.log(full);
             ql=spawn(full,["server","--port",8000]);
             ql.stdout.on('data',function(data){
-                console.log(data.toString())
+                console.log(data.toString());
             });
             ql.stderr.on('data',function(data){
-                console.log(data.toString())
+                console.log(data.toString());
             });
             ql.on('close',function(data){
-                console.log(data.toString())
+                console.log(data.toString());
             });
         }
     });
