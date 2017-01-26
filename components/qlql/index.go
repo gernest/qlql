@@ -13,12 +13,10 @@ import (
 
 type Index struct {
 	vecty.Core
-	tables   []string
 	baseURL  string
 	infoChan chan common.DBInfo
 	info     *common.DBInfo
 	children chan common.DBInfo
-	tableNav *TableNav
 }
 
 func NewIdex(baseURL string) *Index {
@@ -26,7 +24,6 @@ func NewIdex(baseURL string) *Index {
 		baseURL:  baseURL,
 		infoChan: make(chan common.DBInfo),
 		children: make(chan common.DBInfo),
-		tableNav: &TableNav{},
 	}
 	return i.Start()
 }
@@ -256,13 +253,25 @@ type wrapCol struct {
 	t common.Column
 }
 
+func keyValue(key, value string) *vecty.HTML {
+	return elem.Span(
+		prop.Class("nav-group-item"),
+		vecty.Text(key+":"+value),
+	)
+}
+
 func (w *wrapCol) Render() *vecty.HTML {
 	var state string
+	var display string
 	if w.t.Active {
 		state = "icon icon-minus"
+		display = "block"
 	} else {
+		display = "none"
 		state = "icon icon-plus"
 	}
+	var cols vecty.List
+	cols = append(cols, keyValue("Type ", w.t.Type))
 
 	return elem.Span(
 		prop.Class("nav-group-item"),
@@ -274,5 +283,14 @@ func (w *wrapCol) Render() *vecty.HTML {
 			}),
 		),
 		vecty.Text(w.t.Name),
+		elem.Navigation(
+			prop.Class("nav-group"),
+			vecty.Style("display", display),
+			elem.Header5(
+				prop.Class("nav-group-title"),
+				vecty.Text("properties"),
+			),
+			cols,
+		),
 	)
 }
