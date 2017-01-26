@@ -58,6 +58,7 @@ func (i *Index) Render() *vecty.HTML {
 						photon.Pane(true),
 						photon.PaneOneThird(true),
 						NewDBConnect(i.infoChan, i.baseURL),
+						&Query{},
 					),
 				),
 			),
@@ -290,6 +291,28 @@ func (w *wrapCol) Render() *vecty.HTML {
 				vecty.Text("properties"),
 			),
 			cols,
+		),
+	)
+}
+
+type Query struct {
+	vecty.Core
+}
+
+func (q *Query) Render() *vecty.HTML {
+	return elem.Form(
+		prop.Class("padded"),
+		// Display a textarea on the right-hand side of the page.
+		elem.Div(
+			elem.TextArea(
+				// When input is typed into the textarea, update the local
+				// component state and rerender.
+				event.Input(func(e *vecty.Event) {
+				}),
+			),
+			elem.Button(
+				vecty.Text("execute query"),
+			),
 		),
 	)
 }
