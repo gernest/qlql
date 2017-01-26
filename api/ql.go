@@ -37,8 +37,12 @@ func main() {
 }
 
 func Server(ctx *cli.Context) error {
+	testFile := "test.db"
+	defer func() {
+		os.Remove(testFile)
+	}()
 	port := ctx.Int("port")
-	s := api.NewServer()
+	s := api.NewServer(testFile)
 	log.Println("starting ql server at http://localhost:", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), s)
 }

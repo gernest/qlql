@@ -96,9 +96,9 @@ func renderJSON(w http.ResponseWriter, data interface{}) {
 	w.Write(d)
 }
 
-func NewServer() *alien.Mux {
+func NewServer(testdb string) *alien.Mux {
 	s := &Server{}
-	s.dbs = append(s.dbs, testDB())
+	s.dbs = append(s.dbs, testDB(testdb))
 	r := alien.New()
 	r.Get("/all", s.AllDB)
 	r.Get("/info", s.Info)
@@ -106,8 +106,10 @@ func NewServer() *alien.Mux {
 	return r
 }
 
-func testDB() *ql.DB {
-	db, err := ql.OpenMem()
+func testDB(name string) *ql.DB {
+	db, err := ql.OpenFile(name, &ql.Options{
+		CanCreate: true,
+	})
 	if err != nil {
 		log.Fatal(err)
 	}
