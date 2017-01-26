@@ -8,6 +8,7 @@ import (
 
 	"github.com/cznic/ql"
 	"github.com/gernest/alien"
+	"github.com/gernest/qlql/components/common"
 )
 
 type Result struct {
@@ -29,8 +30,7 @@ func (s *Server) AllDB(w http.ResponseWriter, r *http.Request) {
 	renderJSON(w, a)
 }
 func (s *Server) Info(w http.ResponseWriter, r *http.Request) {
-	p := alien.GetParams(r)
-	dbName := p.Get("dbname")
+	dbName := r.URL.Query().Get("db")
 	if dbName == "" {
 		rst := &Result{Error: errors.New("missing database name")}
 		d, _ := json.Marshal(rst)
@@ -44,46 +44,43 @@ func (s *Server) Info(w http.ResponseWriter, r *http.Request) {
 				renderErr(w, err)
 				return
 			}
-			//renderJSON(w, infoDB(info))
-			renderJSON(w, info)
+			renderJSON(w, infoDB(info))
 			return
 		}
 	}
 }
+func infoDB(db *ql.DbInfo) common.DBInfo {
+	i := common.DBInfo{}
+	i.Name = db.Name
+	for _, v := range db.Tables {
+		i.Tables = append(i.Tables, infoTable(v))
+	}
+	for _, v := range db.Indices {
+		x := common.Index{}
+		x.Name = v.Name
+		x.Table = v.Table
+		x.Column = v.Column
+		x.ExpressionList = v.ExpressionList
+		x.Unique = v.Unique
+		i.Indices = append(i.Indices, x)
+	}
+	return i
+}
 
-//func infoDB(db *ql.DbInfo) common.DBInfo {
-//i := common.DBInfo{}
-//i.Name = db.Name
-//for _, v := range db.Tables {
-//i.Tables = append(i.Tables, infoTable(v))
-//}
-//for _, v := range db.Indices {
-//x := common.Index{}
-//x.Name = v.Name
-//x.Table = v.Table
-//x.Column = v.Column
-//x.ExpressionList = v.ExpressionList
-//x.Unique = v.Unique
-//i.Indices = append(i.Indices, x)
-//}
-//return i
-//}
-
-//func infoTable(t ql.TableInfo) common.Table {
-//i := common.Table{}
-//i.Name = t.Name
-//for _, v := range t.Columns {
-//c := common.Column{}
-//c.Name = v.Name
-//c.Constraint = v.Constraint
-//c.Default = v.Default
-//c.NotNull = v.NotNull
-//c.Type = v.Type.String()
-//i.Columns = append(i.Columns, c)
-//}
-//return i
-//}
-
+func infoTable(t ql.TableInfo) common.Table {
+	i := common.Table{}
+	i.Name = t.Name
+	for _, v := range t.Columns {
+		c := common.Column{}
+		c.Name = v.Name
+		c.Constraint = v.Constraint
+		c.Default = v.Default
+		c.NotNull = v.NotNull
+		c.Type = v.Type.String()
+		i.Columns = append(i.Columns, c)
+	}
+	return i
+}
 func renderErr(w http.ResponseWriter, err error) {
 	rst := &Result{Error: err}
 	d, _ := json.Marshal(rst)
@@ -104,7 +101,7 @@ func NewServer() *alien.Mux {
 	s.dbs = append(s.dbs, testDB())
 	r := alien.New()
 	r.Get("/all", s.AllDB)
-	r.Get("/info/:dbname", s.Info)
+	r.Get("/info", s.Info)
 	r.Post("/open/:dbname", s.Open)
 	return r
 }
