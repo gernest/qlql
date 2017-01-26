@@ -6,6 +6,6 @@ import (
 )
 
 func main() {
-	vecty.SetTitle("my way")
+	vecty.SetTitle("qlql")
 	vecty.RenderBody(qlql.NewIdex("http://localhost:8000"))
 }
