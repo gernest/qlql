@@ -137,7 +137,6 @@ func NewDBConnect(ch chan common.DBInfo, base string) *DBConnect {
 
 func (d *DBConnect) Render() *vecty.HTML {
 	all := d.availableDB()
-	all = append(all, "one", "two", "three")
 	var opts vecty.List
 	for _, v := range all {
 		opts = append(opts, elem.Option(
