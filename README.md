@@ -29,3 +29,5 @@ Download the pre built packages
  So, somehow the `make build-go` won't work. Because I have made changes to
  vecty that are only available to my fork. Replace vecty packages with my fork
  of vecty before you proceed.
+
+ Umh! did I forgot to say you might need a brave heart! :)
