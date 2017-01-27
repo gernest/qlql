@@ -17,6 +17,7 @@ type Index struct {
 	infoChan chan common.DBInfo
 	info     *common.DBInfo
 	children chan common.DBInfo
+	opts     *queryOpts
 }
 
 func NewIdex(baseURL string) *Index {
@@ -24,6 +25,7 @@ func NewIdex(baseURL string) *Index {
 		baseURL:  baseURL,
 		infoChan: make(chan common.DBInfo),
 		children: make(chan common.DBInfo),
+		opts:     &queryOpts{},
 	}
 	return i.Start()
 }
@@ -33,8 +35,9 @@ func (i *Index) Start() *Index {
 			select {
 			case v := <-i.infoChan:
 				i.info = &v
+				i.opts.db = i.info.Name
+				i.opts.baseURL = i.baseURL
 				i.children <- v
-				println("dispatced info")
 			}
 		}
 	}()
@@ -58,7 +61,10 @@ func (i *Index) Render() *vecty.HTML {
 						photon.Pane(true),
 						photon.PaneOneThird(true),
 						NewDBConnect(i.infoChan, i.baseURL),
-						&Query{},
+						&Query{
+							optsChan: make(chan *queryOpts),
+							opts:     i.opts,
+						},
 					),
 				),
 			),
@@ -79,7 +85,6 @@ func NewTableNav(ch chan common.DBInfo) *TableNav {
 }
 func (t *TableNav) Start() *TableNav {
 	go func() {
-		println("started listening")
 		for {
 			select {
 			case v := <-t.infoChan:
@@ -95,10 +100,8 @@ func (t *TableNav) Render() *vecty.HTML {
 	var name string
 	if t.info != nil {
 		name = t.info.Name
-		println(name)
 		var tables vecty.List
 		for _, v := range t.info.Tables {
-			println(v.Name)
 			if len(v.Name) > 2 {
 				if v.Name[0] == '_' && v.Name[1] == '_' {
 					continue
@@ -178,13 +181,13 @@ func (d *DBConnect) availableDB() []string {
 	}
 	b, err := xhr.Send("GET", d.baseURL+"/all", nil)
 	if err != nil {
-		println(err.Error())
+		//println(err.Error())
 		return []string{}
 	}
 	var out []string
 	err = json.Unmarshal(b, &out)
 	if err != nil {
-		println(err.Error())
+		//println(err.Error())
 		return []string{}
 	}
 	d.available = out
@@ -193,7 +196,7 @@ func (d *DBConnect) availableDB() []string {
 func (d *DBConnect) connect(db string) {
 	b, err := xhr.Send("GET", d.baseURL+"/info?db="+db, nil)
 	if err != nil {
-		println(err.Error())
+		//println(err.Error())
 		return
 	}
 	//println(string(b))
@@ -298,6 +301,7 @@ func (w *wrapCol) Render() *vecty.HTML {
 type Query struct {
 	vecty.Core
 	optsChan chan *queryOpts
+	opts     *queryOpts
 }
 
 func (q *Query) Render() *vecty.HTML {
@@ -307,25 +311,38 @@ func (q *Query) Render() *vecty.HTML {
 			// Display a textarea on the right-hand side of the page.
 			elem.Div(
 				elem.TextArea(
-					// When input is typed into the textarea, update the local
-					// component state and rerender.
-					event.Input(func(e *vecty.Event) {
-					}),
+					vecty.Text(q.opts.query),
 				),
 				elem.Button(
 					vecty.Text("execute query"),
 				),
+				elem.Label(
+					vecty.Text("Transaction"),
+					elem.Input(
+						prop.Type(prop.TypeCheckbox),
+						event.Change(func(e *vecty.Event) {
+							q.opts.tx = !q.opts.tx
+						}),
+					),
+				),
 			),
+			event.Submit(func(e *vecty.Event) {
+				q.opts.query = e.Target.Index(0).Get("value").String()
+				go func() {
+					q.optsChan <- q.opts
+				}()
+
+			}).PreventDefault(),
 		),
 		NewQueryExec(q.optsChan),
 	)
-
 }
 
 type queryOpts struct {
 	baseURL string
-	info    *common.DBInfo
+	db      string
 	query   string
+	tx      bool
 }
 
 func NewQueryExec(ch chan *queryOpts) *QueryExec {
@@ -379,7 +396,22 @@ func (q *QueryExec) Render() *vecty.HTML {
 }
 
 func renderTable(v [][]string) *vecty.HTML {
-	return nil
+	var rst vecty.List
+	for _, row := range v {
+		var cell vecty.List
+		for _, c := range row {
+			cell = append(cell, elem.TableData(
+				vecty.Text(c),
+			))
+		}
+		rst = append(rst, elem.TableRow(
+			cell,
+		))
+	}
+	return elem.Table(
+		prop.Class("table-striped"),
+		rst,
+	)
 }
 func renderErr(err error) *vecty.HTML {
 	return elem.Span(
