@@ -1,12 +1,13 @@
 # qlql
 
-GUI for ql database made with gopherjs, vecty and electron.
+GUI for ql database made with gopherjs, [vecty](https://github.com/gopherjs/vecty) and electron.
 
 ![qlql](qlql.png)
+
 # Usage
 
-Download the pre built packages
-
+See hacking below. There is nothing really useful here except to demonstrate how
+you can use gopherjs to build electron applications.
 
 # Hacking
 
@@ -25,7 +26,7 @@ Download the pre built packages
  - run `go get ./...`
  - run `make build-go` to build the ap1 server
  - run `make ` to build the app
- - run `npm star` to start the electron app
+ - run `npm start` to start the electron app
 
  So, somehow the `make build-go` won't work. Because I have made changes to
  vecty that are only available to my fork. Replace vecty packages with my fork
