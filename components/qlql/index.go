@@ -1,6 +1,8 @@
 package qlql
 
 import (
+	"errors"
+
 	"github.com/cathalgarvey/fmtless/encoding/json"
 	"github.com/gernest/qlql/components/common"
 	"github.com/gernest/qlql/components/photon"
@@ -203,7 +205,7 @@ func (d *DBConnect) connect(db string) {
 	i := common.DBInfo{}
 	err = json.Unmarshal(b, &i)
 	if err != nil {
-		println(err.Error())
+		//println(err.Error())
 		return
 	}
 	d.infoChan <- i
@@ -355,7 +357,7 @@ type QueryExec struct {
 	optsChan chan *queryOpts
 	o        *queryOpts
 	err      error
-	results  [][]string
+	results  []common.Record
 }
 
 func (q *QueryExec) Start() *QueryExec {
@@ -366,8 +368,11 @@ func (q *QueryExec) Start() *QueryExec {
 				q.o = o
 				r, err := execQuery(o)
 				if err != nil {
+					println(err)
 					q.err = err
+					q.results = nil
 				} else {
+					q.err = nil
 					q.results = r
 				}
 				vecty.Rerender(q)
@@ -377,8 +382,26 @@ func (q *QueryExec) Start() *QueryExec {
 	return q
 }
 
-func execQuery(o *queryOpts) ([][]string, error) {
-	return nil, nil
+func execQuery(o *queryOpts) ([]common.Record, error) {
+	req := &common.ExecReq{}
+	req.DB = o.db
+	req.Query = o.query
+	req.Tx = o.tx
+	d, _ := json.Marshal(req)
+	b, err := xhr.Send("POST", o.baseURL+"/exec", d)
+	if err != nil {
+		return nil, err
+	}
+	println(string(b))
+	res := &common.ExecRes{}
+	err = json.Unmarshal(b, res)
+	if err != nil {
+		return nil, err
+	}
+	if res.Error != "" {
+		return nil, errors.New(res.Error)
+	}
+	return res.Results, nil
 }
 
 func (q *QueryExec) Render() *vecty.HTML {
@@ -386,20 +409,38 @@ func (q *QueryExec) Render() *vecty.HTML {
 	if q.err != nil {
 		body = renderErr(q.err)
 	} else {
-		body = renderTable(q.results)
-	}
+		if q.results != nil {
+			body = renderTable(q.results)
+		} else {
+			body = renderErr(errors.New("no hits"))
+		}
 
+	}
 	return elem.Div(
 		prop.Class("padded"),
 		body,
 	)
 }
 
-func renderTable(v [][]string) *vecty.HTML {
+func renderTable(v []common.Record) *vecty.HTML {
 	var rst vecty.List
+	var header *vecty.HTML
+	if len(v) > 0 {
+		var el vecty.List
+		for _, f := range v[0].Fields {
+			el = append(el, elem.TableHeader(
+				vecty.Text(f),
+			))
+		}
+		header = elem.TableHead(
+			elem.TableRow(
+				el,
+			),
+		)
+	}
 	for _, row := range v {
 		var cell vecty.List
-		for _, c := range row {
+		for _, c := range row.Results {
 			cell = append(cell, elem.TableData(
 				vecty.Text(c),
 			))
@@ -410,7 +451,10 @@ func renderTable(v [][]string) *vecty.HTML {
 	}
 	return elem.Table(
 		prop.Class("table-striped"),
-		rst,
+		header,
+		elem.TableBody(
+			rst,
+		),
 	)
 }
 func renderErr(err error) *vecty.HTML {

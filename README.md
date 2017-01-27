@@ -2,6 +2,7 @@
 
 GUI for ql database made with gopherjs, vecty and electron.
 
+![qlql](qlql.png)
 # Usage
 
 Download the pre built packages

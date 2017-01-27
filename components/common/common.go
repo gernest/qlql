@@ -37,6 +37,11 @@ type ExecReq struct {
 }
 
 type ExecRes struct {
-	Error   error
-	Results [][]string
+	Error   string
+	Results []Record
+}
+
+type Record struct {
+	Fields  []string
+	Results []string
 }
