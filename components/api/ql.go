@@ -3,6 +3,8 @@ package api
 import (
 	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -21,6 +23,59 @@ type Server struct {
 }
 
 func (s *Server) Open(w http.ResponseWriter, r *http.Request) {
+}
+func (s *Server) Exec(w http.ResponseWriter, r *http.Request) {
+	rq := &common.ExecReq{}
+	b, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		renderErr(w, err)
+		return
+	}
+	err = json.Unmarshal(b, rq)
+	if err != nil {
+		renderErr(w, err)
+		return
+	}
+	for _, db := range s.dbs {
+		if db.Name() == rq.DB {
+			res, err := execute(db, rq.Tx, rq.Query)
+			if err != nil {
+				renderErr(w, err)
+				return
+			}
+			x := &common.ExecRes{}
+			x.Results = res
+			renderJSON(w, x)
+			return
+		}
+	}
+	renderErr(w, errors.New("database not found"))
+}
+
+func execute(db *ql.DB, tx bool, query string) ([][]string, error) {
+	var ctx *ql.TCtx
+	if tx {
+		ctx = ql.NewRWCtx()
+	}
+
+	rss, _, err := db.Run(ctx, query)
+	if err != nil {
+		return nil, err
+	}
+	var results [][]string
+	for _, rs := range rss {
+		if err := rs.Do(false, func(data []interface{}) (bool, error) {
+			var v []string
+			for _, val := range data {
+				v = append(v, fmt.Sprint(val))
+			}
+			results = append(results, v)
+			return true, nil
+		}); err != nil {
+			return nil, err
+		}
+	}
+	return results, nil
 }
 func (s *Server) AllDB(w http.ResponseWriter, r *http.Request) {
 	var a []string
@@ -82,7 +137,7 @@ func infoTable(t ql.TableInfo) common.Table {
 	return i
 }
 func renderErr(w http.ResponseWriter, err error) {
-	rst := &Result{Error: err}
+	rst := &common.ExecRes{Error: err}
 	d, _ := json.Marshal(rst)
 	w.Write(d)
 }
@@ -103,6 +158,7 @@ func NewServer(testdb string) *alien.Mux {
 	r.Get("/all", s.AllDB)
 	r.Get("/info", s.Info)
 	r.Post("/open/:dbname", s.Open)
+	r.Post("/exec", s.Exec)
 	return r
 }
 

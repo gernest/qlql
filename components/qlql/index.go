@@ -297,22 +297,92 @@ func (w *wrapCol) Render() *vecty.HTML {
 
 type Query struct {
 	vecty.Core
+	optsChan chan *queryOpts
 }
 
 func (q *Query) Render() *vecty.HTML {
-	return elem.Form(
-		prop.Class("padded"),
-		// Display a textarea on the right-hand side of the page.
-		elem.Div(
-			elem.TextArea(
-				// When input is typed into the textarea, update the local
-				// component state and rerender.
-				event.Input(func(e *vecty.Event) {
-				}),
-			),
-			elem.Button(
-				vecty.Text("execute query"),
+	return elem.Div(
+		elem.Form(
+			prop.Class("padded"),
+			// Display a textarea on the right-hand side of the page.
+			elem.Div(
+				elem.TextArea(
+					// When input is typed into the textarea, update the local
+					// component state and rerender.
+					event.Input(func(e *vecty.Event) {
+					}),
+				),
+				elem.Button(
+					vecty.Text("execute query"),
+				),
 			),
 		),
+		NewQueryExec(q.optsChan),
+	)
+
+}
+
+type queryOpts struct {
+	baseURL string
+	info    *common.DBInfo
+	query   string
+}
+
+func NewQueryExec(ch chan *queryOpts) *QueryExec {
+	q := QueryExec{optsChan: ch}
+	return q.Start()
+}
+
+type QueryExec struct {
+	vecty.Core
+	optsChan chan *queryOpts
+	o        *queryOpts
+	err      error
+	results  [][]string
+}
+
+func (q *QueryExec) Start() *QueryExec {
+	go func() {
+		for {
+			select {
+			case o := <-q.optsChan:
+				q.o = o
+				r, err := execQuery(o)
+				if err != nil {
+					q.err = err
+				} else {
+					q.results = r
+				}
+				vecty.Rerender(q)
+			}
+		}
+	}()
+	return q
+}
+
+func execQuery(o *queryOpts) ([][]string, error) {
+	return nil, nil
+}
+
+func (q *QueryExec) Render() *vecty.HTML {
+	var body *vecty.HTML
+	if q.err != nil {
+		body = renderErr(q.err)
+	} else {
+		body = renderTable(q.results)
+	}
+
+	return elem.Div(
+		prop.Class("padded"),
+		body,
+	)
+}
+
+func renderTable(v [][]string) *vecty.HTML {
+	return nil
+}
+func renderErr(err error) *vecty.HTML {
+	return elem.Span(
+		vecty.Text(err.Error()),
 	)
 }

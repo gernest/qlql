@@ -29,3 +29,14 @@ type DBInfo struct {
 	Tables  []Table
 	Indices []Index
 }
+
+type ExecReq struct {
+	DB    string
+	Query string
+	Tx    bool
+}
+
+type ExecRes struct {
+	Error   error
+	Results [][]string
+}
